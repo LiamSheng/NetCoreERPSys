@@ -24,7 +24,7 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7053;http://localhost:5188",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Prod" //项目启动时会使用 appsettings.Prod.json 配置文件
       }
     },
     "IIS Express": {

@@ -1,3 +1,4 @@
+﻿// 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,6 +23,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    // 文件名是 HomeController.cs，但 URL 里只需要写 Home.
+    // 一个命名约定：框架在匹配控制器时，会自动忽略类名末尾的 Controller 这个词，这让 URL 更简洁.
+    pattern: "{controller=Home}/{action=Privacy}/{id?}");
 
 app.Run();

@@ -32,7 +32,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            @RenderBody() @*在这里显示 View 视图*@
         </main>
     </div>
 
@@ -44,6 +44,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @* Partial View 会在主视图上被消费 *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
