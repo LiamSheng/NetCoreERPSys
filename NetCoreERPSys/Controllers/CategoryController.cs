@@ -35,9 +35,24 @@ namespace NetCoreERPSys.Controllers
         [HttpPost]
         public IActionResult Create(Category obj)
         {
-            _db.Categories.Add(obj);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
+            if (obj.Name == obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("DisplayOrder", "Name != DisplayOrder is a must!");
+            }
+
+            if (obj.Name != null && obj.Name.ToLower() == "asp-validation-summary")
+            {
+                ModelState.AddModelError("", "The name 'asp-validation-summary' is not allowed.");
+            }
+
+            // ModelState 是处理模型验证结果的对象, 验证提交的表单数据是否符合 Model 上面用方括号 [...] 定义的那些数据注解特性定义的规则.
+            if (ModelState.IsValid)
+            {
+                _db.Categories.Add(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(obj); // 将用户提交的数据 obj 再次传递给视图, 让用户看到自己刚刚输入的内容, 以便进行修改.
             // return View(); // 显示一个全新的、空的表单页面. 最常用于响应 GET 请求的 Create() 方法.
         }
 

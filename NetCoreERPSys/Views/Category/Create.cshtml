@@ -6,6 +6,12 @@
             <h2 class="text-primary">Create Category</h2>
             <hr />
         </div>
+        @*
+            ModelOnly: 只显示那些不与任何特定字段相关联的“模型级别”错误.
+            All: 所有字段级别的错误, 比如 DisplayOrder 字段的 [Range] 错误等.
+            None: 不显示任何错误.
+        *@
+        <div asp-validation-summary="ModelOnly" class="text-bg-warning">asp-validation-summary</div>
         <div class="mb-3 row">
             @*
                 此处的 label 标签体没有默认值, 框架会使用 Models Name 字段定义的 [DisplayName("Category Name")]
@@ -13,6 +19,7 @@
             *@
             <label asp-for="Name" class="p-1"></label>
             <input asp-for="Name" type="text" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="mb-3 row">
             @* 
@@ -25,6 +32,7 @@
             *@
             <label asp-for="DisplayOrder" class="p-1">Display Order</label>
             <input asp-for="DisplayOrder" type="text" class="form-control" />
+            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
         </div>
         <div class="row p-1">
             <div class="col-6"><button type="submit" class="btn btn-primary form-control">Create</button></div>
