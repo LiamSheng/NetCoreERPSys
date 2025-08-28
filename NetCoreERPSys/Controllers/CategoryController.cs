@@ -21,5 +21,10 @@ namespace NetCoreERPSys.Controllers
             List<Category> objList = _db.Categories.ToList();
             return View(objList);
         }
+
+        public IActionResult Create()
+        {
+            return View(); // View 方法不传值的话, 会自动传入一个带有默认值的 Category 对象.
+        }
     }
 }
