@@ -7,12 +7,24 @@
             <hr />
         </div>
         <div class="mb-3 row">
-            <label>Category Name</label>
-            <input type="text" class="form-control" />
+            @*
+                此处的 label 标签体没有默认值, 框架会使用 Models Name 字段定义的 [DisplayName("Category Name")]
+                也可以像 <label asp-for="DisplayOrder" class="p-1">Display Order</label> 硬编码
+            *@
+            <label asp-for="Name" class="p-1"></label>
+            <input asp-for="Name" type="text" class="form-control" />
         </div>
         <div class="mb-3 row">
-            <label>Display Order</label>
-            <input type="text" class="form-control" />
+            @* 
+                点击一个带有 for 属性的 <label>文本时，浏览器会自动将光标聚焦到对应的输入框中.
+                这对于小小的复选框和单选按钮尤其有用，极大地扩展了用户的可点击区域. 
+                屏幕阅读器等辅助技术会使用这种明确的关联.
+
+                asp-for 是一个服务器端的“指令”, 在生成最终 HTML 的时候会自动地、智能地创建出 for 属性以及其他很多东西.
+                asp-for 将显示的文本与模型的元数据绑定.
+            *@
+            <label asp-for="DisplayOrder" class="p-1">Display Order</label>
+            <input asp-for="DisplayOrder" type="text" class="form-control" />
         </div>
         <div class="row p-1">
             <div class="col-6"><button type="submit" class="btn btn-primary form-control">Create</button></div>
