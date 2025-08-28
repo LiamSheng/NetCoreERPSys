@@ -19,5 +19,22 @@ namespace NetCoreERPSys.Data
 
         // 在 Nuget console 运行 add-migration AddCategoryTable -> update-database.
         public DbSet<Category> Categories { get; set; } // 代表数据库中的 Categories 表.
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // 告诉 EF Core，在创建 Category 表之后，
+            // 请立即向表中插入这三条数据。
+            modelBuilder.Entity<Category>().HasData(
+                new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
+                new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
+                new Category { Id = 3, Name = "History", DisplayOrder = 3 }
+            );
+
+            // 假设您不想让表名叫 Categories，而是叫 MyCategories
+            // modelBuilder.Entity<Category>().ToTable("MyCategories");
+
+            // 假设您想让 Name 字段在数据库中不能重复
+            // modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
+        }
     }
 }

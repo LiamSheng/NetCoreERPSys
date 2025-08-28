@@ -8,8 +8,8 @@ namespace NetCoreERPSys.Models
         public int Id { get; set; }
 
         [Required]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty; // Property initializer, 属性初始化为空字符串, 避免 null 引发的问题
 
-        public string Description { get; set; } = ""; // Property initializer, 属性初始化为空字符串, 避免 null 引发的问题
+        public int DisplayOrder { get; set; }
     }
 }
