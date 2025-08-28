@@ -42,3 +42,17 @@
         </div>
     </div>
 </form>
+
+@section Scripts {
+    @*
+        客户端验证的局限性:
+        1. 需要在 Models 类上使用数据注解来定义规则: [Range(1, 100)].
+        2. 需要 <input asp-for="..."> Tag helper 生成输入框.
+        3. 仅能验证上述错误, 客户端的 JavaScript 脚本对自定义业务逻辑一无所知, 无法验证.
+
+        优点: 客户端验证通过 JS脚本, 不跳转页面 不提交请求.
+    *@
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
