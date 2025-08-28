@@ -45,6 +45,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @* Partial View 会在主视图上被消费 *@
+    @* 这个插槽等待任何子页面来填充名为 "Scripts" 的内容 *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
