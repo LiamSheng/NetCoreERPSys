@@ -62,5 +62,85 @@ namespace NetCoreERPSys.Controllers
         {
             return View();
         }
+
+        public IActionResult Edit(int? id) // 参数名 'id' 与路由中的 '{id?}' 匹配, 与 asp-route-id 的 'id' 对应.
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            Category? categoryFromDb = _db.Categories.Find(id);
+            // Category? categoryFromDb = _db.Categories.FirstOrDefault(c => c.Id == id);
+            // Category? categoryFromDb = _db.Categories.Where(c => c.Id == id).FirstOrDefault();
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            // 点击 Edit 按钮的时候, 就会根据 Id 的值查询到这个对象,
+            // 框架中的 asp-for 标签助手读取了这个模型的值，并自动将其设置为了输入框的 value.
+            return View(categoryFromDb);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Category obj)
+        {
+            if (obj.Name == obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("DisplayOrder", "Name != DisplayOrder is a must!");
+            }
+
+            if (obj.Name != null && obj.Name.ToLower() == "asp-validation-summary")
+            {
+                ModelState.AddModelError("", "The name 'asp-validation-summary' is not allowed.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                _db.Categories.Update(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View();
+        }
+
+        public IActionResult Delete(int? id) // 参数名 'id' 与路由中的 '{id?}' 匹配, 与 asp-route-id 的 'id' 对应.
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            Category? categoryFromDb = _db.Categories.Find(id);
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryFromDb);
+        }
+
+        /**
+         * 表单发送 HTTP POST 请求, 框架会寻找:
+         *  1. 被 [HttpPost] 特性标记,
+         *  2. 其“动作名称”是 Delete 的方法
+         */
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeletePOST(int? id) // 一个类中不能有签名完全一样的两个方法, 故改为 DeletePOST.
+        {
+            Category? categoryFromDb = _db.Categories.Find(id);
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            _db.Categories.Remove(categoryFromDb);
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
     }
 }
