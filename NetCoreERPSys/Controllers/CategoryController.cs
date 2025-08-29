@@ -50,6 +50,7 @@ namespace NetCoreERPSys.Controllers
             {
                 _db.Categories.Add(obj);
                 _db.SaveChanges();
+                TempData["created"] = "Category created successfully!"; // 设置一个临时数据, 用于在重定向后的页面显示成功消息, TempData 只能保存到下一个请求, 之后就会被清除.
                 return RedirectToAction("Index");
             }
             return View(obj); // 将用户提交的数据 obj 再次传递给视图, 让用户看到自己刚刚输入的内容, 以便进行修改.
@@ -100,6 +101,7 @@ namespace NetCoreERPSys.Controllers
             {
                 _db.Categories.Update(obj);
                 _db.SaveChanges();
+                TempData["updated"] = "Category updated successfully!";
                 return RedirectToAction("Index");
             }
             return View();
@@ -138,6 +140,7 @@ namespace NetCoreERPSys.Controllers
             }
 
             _db.Categories.Remove(categoryFromDb);
+            TempData["deleted"] = "Category deleted successfully!";
             _db.SaveChanges();
 
             return RedirectToAction("Index");
