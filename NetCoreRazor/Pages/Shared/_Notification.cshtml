@@ -1,0 +1,36 @@
+﻿@{
+    // 先检查是否存在任何需要显示的通知
+    bool hasSuccess = TempData["created"] != null;
+    bool hasError = TempData["error"] != null;
+    bool hasUpdated = TempData["updated"] != null;
+    bool hasDeleted = TempData["deleted"] != null;
+}
+
+@* 只有在至少存在一个通知时，才渲染 <script> 标签 *@
+@if (hasSuccess || hasError || hasUpdated || hasDeleted)
+{
+    <script type="text/javascript">
+        toastr.options = {
+          "closeButton": true,
+          "progressBar": true,
+          "positionClass": "toast-top-right",
+          "timeOut": "5000"
+        };
+        @if (hasSuccess)
+        {
+            <text>toastr.success('@TempData["created"]');</text>
+        }
+        @if (hasError)
+        {
+            <text>toastr.error('@TempData["error"]');</text>
+        }
+        @if (hasUpdated)
+        {
+            <text>toastr.info('@TempData["updated"]');</text>
+        }
+        @if (hasDeleted)
+        {
+            <text>toastr.success('@TempData["deleted"]');</text>
+        }
+    </script>
+}

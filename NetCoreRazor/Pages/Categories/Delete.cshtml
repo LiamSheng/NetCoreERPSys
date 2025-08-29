@@ -1,7 +1,5 @@
 ﻿@page
-
-@*所需要的所有数据和可以绑定的属性，都来自于 CreateModel 类的一个实例*@
-@model NetCoreRazor.Pages.Categories.CreateModel
+@model NetCoreRazor.Pages.Categories.DeleteModel
 
 <form method="post">
     <div class="border p-3 mt-4">
@@ -21,7 +19,7 @@
                 也可以像 <label asp-for="DisplayOrder" class="p-1">Display Order</label> 硬编码
             *@
             <label asp-for="Category.Name" class="p-1"></label>
-            <input asp-for="Category.Name" type="text" class="form-control" />
+            <input asp-for="Category.Name" type="text" class="form-control" disabled />
             <span asp-validation-for="Category.Name" class="text-danger"></span>
         </div>
         <div class="mb-3 row">
@@ -34,11 +32,11 @@
                 asp-for 将显示的文本与模型的元数据绑定.
             *@
             <label asp-for="Category.DisplayOrder" class="p-1">Display Order</label>
-            <input asp-for="Category.DisplayOrder" type="text" class="form-control" />
+            <input asp-for="Category.DisplayOrder" type="text" class="form-control" disabled />
             <span asp-validation-for="Category.DisplayOrder" class="text-danger"></span>
         </div>
         <div class="row p-1">
-            <div class="col-6"><button type="submit" class="btn btn-primary form-control">Create</button></div>
+            <div class="col-6"><button type="submit" class="btn btn-primary form-control">Delete</button></div>
             <div class="col-6">
                 <a asp-page="/categories/index" class="btn btn-outline-dark form-control">Back to List</a>
             </div>

@@ -6,7 +6,7 @@ using NetCoreRazor.Models;
 namespace NetCoreRazor.Pages.Categories
 {
     [BindProperties]
-    public class CreateModel : PageModel
+    public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _db;
 
@@ -16,31 +16,34 @@ namespace NetCoreRazor.Pages.Categories
         // [BindProperty]
         public Category? Category { get; set; }
 
-        public CreateModel(ApplicationDbContext db)
+        public EditModel(ApplicationDbContext db)
         {
             _db = db;
         }
 
-        public void OnGet()
+        public void OnGet(int? id)
         {
+            if (id == null || id == 0)
+            {
+                NotFound();
+            }
+            Category = _db.Categories.Find(id);
         }
-
-        // 不使用 [BindProperty] + 带参数的 OnPost:
-        //public IActionResult OnPost(Category category)
-        //{
-        //    _db.Categories.Add(category);
-        //    _db.SaveChanges();
-
-        //    return RedirectToPage("Index");
-        //}
 
         public IActionResult OnPost()
         {
-            // 直接使用被框架自动填充的 Category 属性
-            _db.Categories.Add(Category);
-            _db.SaveChanges();
-            TempData["created"] = "Category created successfully";
-            return RedirectToPage("Index");
+            if (ModelState.IsValid && Category != null)
+            {
+                _db.Categories.Update(Category);
+                _db.SaveChanges();
+                TempData["created"] = "Category updated successfully";
+                return RedirectToPage("Index");
+            }
+            else
+            {
+                return Page(); // 保持在当前页面而不是跳转
+            }
+
         }
     }
 }
