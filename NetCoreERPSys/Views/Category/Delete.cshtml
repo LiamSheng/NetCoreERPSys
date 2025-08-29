@@ -1,0 +1,37 @@
+﻿@model Category
+
+@*
+    当一个 <form> 标签没有指定 action 属性时, 浏览器会默认将表单提交到当前页面的 URL. 例如 /Category/Delete/5
+    框架接收到 /Category/Delete/5 的 POST 请求. 因此没有 <input asp-for="Id" hidden /> 也能成功删除.
+*@
+<form method="post" asp-action="Delete">
+    @* 发起 HTTP POST 请求, 假设地址是/Category/Delete/5 *@
+    @* 使用隐藏字段来传递需要删除的记录的 Id *@
+    @* <input asp-for="Id" hidden /> *@
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Delete</h2>
+            <hr />
+        </div>
+        <div asp-validation-summary="ModelOnly" class="text-bg-warning">asp-validation-summary</div>
+        <div class="mb-3 row">
+            <label asp-for="Name" class="p-1"></label>
+            @*
+                渲染到 <input asp-for... 的时候,会消费传入的 "categoryFromDb", 并自动填值进 input value 属性中.
+            *@
+            <input asp-for="Name" type="text" class="form-control" disabled />
+            @* <span asp-validation-for="Name" class="text-danger"></span> *@
+        </div>
+        <div class="mb-3 row">
+            <label asp-for="DisplayOrder" class="p-1">Display Order</label>
+            <input asp-for="DisplayOrder" type="text" class="form-control" disabled />
+            @* <span asp-validation-for="DisplayOrder" class="text-danger"></span> *@
+        </div>
+        <div class="row p-1">
+            <div class="col-6"><button type="submit" class="btn btn-danger form-control">Delete</button></div>
+            <div class="col-6">
+                <a asp-controller="Category" asp-action="Index" class="btn btn-outline-dark form-control">Back to List</a>
+            </div>
+        </div>
+    </div>
+</form>
