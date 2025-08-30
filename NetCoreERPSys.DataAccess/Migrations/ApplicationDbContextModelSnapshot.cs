@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetCoreERPSysWeb.Data;
+using NetCoreERPSys.DataAccess;
 
 #nullable disable
 

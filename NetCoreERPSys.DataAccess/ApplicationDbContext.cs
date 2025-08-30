@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NetCoreERPSysWeb.Models;
+using NetCoreERPSys.Models;
 
-namespace NetCoreERPSysWeb.Data
+namespace NetCoreERPSys.DataAccess
 {
     /*
      * DbContext 这个(抽象)基类需要 options 对象来了解它应该用什么连接字符串、什么数据库类型和数据库交互.

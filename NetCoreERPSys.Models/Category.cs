@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace NetCoreERPSysWeb.Models
+namespace NetCoreERPSys.Models
 {
     public class Category
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetCoreERPSysWeb.Data;
-using NetCoreERPSysWeb.Models;
+using NetCoreERPSys.DataAccess;
+using NetCoreERPSys.Models;
 
 namespace NetCoreERPSysWeb.Controllers
 {

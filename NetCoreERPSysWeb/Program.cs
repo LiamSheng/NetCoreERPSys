@@ -1,6 +1,6 @@
 ﻿// 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
 using Microsoft.EntityFrameworkCore;
-using NetCoreERPSysWeb.Data;
+using NetCoreERPSys.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 

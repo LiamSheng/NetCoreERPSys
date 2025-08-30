@@ -16,4 +16,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NetCoreERPSys.DataAccess\NetCoreERPSys.DataAccess.csproj" />
+    <ProjectReference Include="..\NetCoreERPSys.Models\NetCoreERPSys.Models.csproj" />
+    <ProjectReference Include="..\NetCoreERPSys.Utility\NetCoreERPSys.Utility.csproj" />
+  </ItemGroup>
+
 </Project>
