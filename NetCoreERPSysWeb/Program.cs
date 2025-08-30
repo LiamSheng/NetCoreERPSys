@@ -1,6 +1,8 @@
 ﻿// 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
 using Microsoft.EntityFrameworkCore;
 using NetCoreERPSys.DataAccess;
+using NetCoreERPSys.DataAccess.Repository;
+using NetCoreERPSys.DataAccess.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 
