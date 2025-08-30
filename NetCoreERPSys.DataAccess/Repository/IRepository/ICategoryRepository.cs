@@ -6,7 +6,5 @@ namespace NetCoreERPSys.DataAccess.Repository.IRepository
     {
         // 除了 IRepository 定义的方法, 另加上本接口额外的方法.
         void Update(Category category);
-
-        void Save();
     }
 }

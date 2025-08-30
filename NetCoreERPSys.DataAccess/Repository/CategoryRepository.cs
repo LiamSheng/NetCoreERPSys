@@ -12,14 +12,11 @@ namespace NetCoreERPSys.DataAccess.Repository
             _db = db;
         }
 
-        public void Save()
-        {
-            _db.SaveChanges();
-        }
+        // Save() 方法在 UnitOfWork 里单独实现.
 
         public void Update(Category category)
         {
-            dbSet.Update(category);
+            _db.Categories.Update(category);
         }
     }
 }
