@@ -2,8 +2,9 @@
 using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
 
-namespace NetCoreERPSysWeb.Controllers
+namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         // 需要注册依赖注入

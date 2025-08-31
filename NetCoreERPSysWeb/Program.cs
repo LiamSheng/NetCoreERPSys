@@ -36,6 +36,6 @@ app.MapControllerRoute(
     name: "default",
     // 文件名是 HomeController.cs，但 URL 里只需要写 Home.
     // 一个命名约定：框架在匹配控制器时，会自动忽略类名末尾的 Controller 这个词，这让 URL 更简洁.
-    pattern: "{controller=Home}/{action=Privacy}/{id?}");
+    pattern: "{area=Customer}/{controller=Home}/{action=Privacy}/{id?}");
 
 app.Run();
