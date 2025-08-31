@@ -1,10 +1,10 @@
-﻿using NetCoreERPSys.Models;
-
-namespace NetCoreERPSys.DataAccess.Repository.IRepository
+﻿namespace NetCoreERPSys.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork
     {
         ICategoryRepository Category { get; }
+
+        IProductRepository Product { get; }
 
         void Save();
     }
