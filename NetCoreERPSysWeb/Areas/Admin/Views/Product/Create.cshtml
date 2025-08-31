@@ -52,6 +52,19 @@
             <input asp-for="Price100" rows="3" class="form-control" />
             <span asp-validation-for="Price100" class="text-danger"></span>
         </div>
+        <div class="mb-3">
+            <label asp-for="Price100"></label>
+            <input asp-for="Price100" rows="3" class="form-control" />
+            <span asp-validation-for="Price100" class="text-danger"></span>
+        </div>
+        <div class="py-2 clo-12">
+            <label asp-for="CategoryId" class="ms-2"></label>
+            @* <select asp-for="CategoryId" asp-items="ViewBag.CategoryList" calss="form-select border-0 shadow"> *@
+            <select asp-for="CategoryId" asp-items="@(ViewData["CategoryList"]) as IEnumerable<SelectListItem>" calss="form-select border-0 shadow">
+                <option disabled selected>--Select Category--</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
         <div class="row p-1">
             <div class="col-6"><button type="submit" class="btn btn-primary form-control">Create</button></div>
             <div class="col-6">
