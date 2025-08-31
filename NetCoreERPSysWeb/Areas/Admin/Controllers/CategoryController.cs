@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetCoreERPSys.DataAccess;
+using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
 
-namespace NetCoreERPSysWeb.Controllers
+namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        // 需要注册依赖注入
+        // private readonly ICategoryRepository _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(ApplicationDbContext db)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         //  框架会在以下两个位置查询 View, 若都没有则会抛出异常.
@@ -18,7 +21,7 @@ namespace NetCoreERPSysWeb.Controllers
         // /Views/Shared/Index.cshtml
         public IActionResult Index()
         {
-            List<Category> objList = _db.Categories.ToList();
+            List<Category> objList = _unitOfWork.Category.GetAll().ToList();
             return View(objList);
         }
 
@@ -48,8 +51,8 @@ namespace NetCoreERPSysWeb.Controllers
             // ModelState 是处理模型验证结果的对象, 验证提交的表单数据是否符合 Model 上面用方括号 [...] 定义的那些数据注解特性定义的规则.
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(obj);
-                _db.SaveChanges();
+                _unitOfWork.Category.Add(obj);
+                _unitOfWork.Save();
                 TempData["created"] = "Category created successfully!"; // 设置一个临时数据, 用于在重定向后的页面显示成功消息, TempData 只能保存到下一个请求, 之后就会被清除.
                 return RedirectToAction("Index");
             }
@@ -70,9 +73,9 @@ namespace NetCoreERPSysWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromDb = _db.Categories.Find(id);
-            // Category? categoryFromDb = _db.Categories.FirstOrDefault(c => c.Id == id);
-            // Category? categoryFromDb = _db.Categories.Where(c => c.Id == id).FirstOrDefault();
+            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
+            // Category? categoryFromDb = _unitOfWork.Categories.FirstOrDefault(c => c.Id == id);
+            // Category? categoryFromDb = _unitOfWork.Categories.Where(c => c.Id == id).FirstOrDefault();
 
             if (categoryFromDb == null)
             {
@@ -99,8 +102,8 @@ namespace NetCoreERPSysWeb.Controllers
 
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(obj);
-                _db.SaveChanges();
+                _unitOfWork.Category.Update(obj);
+                _unitOfWork.Save();
                 TempData["updated"] = "Category updated successfully!";
                 return RedirectToAction("Index");
             }
@@ -114,7 +117,7 @@ namespace NetCoreERPSysWeb.Controllers
                 return NotFound();
             }
 
-            Category? categoryFromDb = _db.Categories.Find(id);
+            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
 
             if (categoryFromDb == null)
             {
@@ -132,16 +135,16 @@ namespace NetCoreERPSysWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id) // 一个类中不能有签名完全一样的两个方法, 故改为 DeletePOST.
         {
-            Category? categoryFromDb = _db.Categories.Find(id);
+            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
 
             if (categoryFromDb == null)
             {
                 return NotFound();
             }
 
-            _db.Categories.Remove(categoryFromDb);
+            _unitOfWork.Category.Remove(categoryFromDb);
             TempData["deleted"] = "Category deleted successfully!";
-            _db.SaveChanges();
+            _unitOfWork.Save();
 
             return RedirectToAction("Index");
         }
