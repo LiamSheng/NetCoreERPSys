@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
+using NetCoreERPSys.Models.ViewModels;
 
 namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 {
@@ -22,16 +23,32 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(ProductVM productVM)
         {
+            // 用户点击提交表单后, 浏览器只会提交用户输入或选择的值, 例如 Product.Name
+            // 它不会将整个下拉列表的选项（也就是 CategoryList）提交回来.
+            // obj.CategoryList 属性将会是 null, 将会导致 ModelState.IsValid 返回 false.
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(obj);
+                _unitOfWork.Product.Add(productVM.Product);
                 _unitOfWork.Save();
                 TempData["created"] = "Product created successfully!";
                 return RedirectToAction("Index");
             }
-            return View(obj);
+            else
+            {
+                IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category
+                    .GetAll()
+                    .Select(u => new SelectListItem
+                    {
+                        Text = u.Name,
+                        Value = u.Id.ToString()
+                    });
+
+                productVM.CategoryList = CategoryList;
+
+                return View(productVM);
+            }
         }
 
         public IActionResult Create()
@@ -60,9 +77,13 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
              *      ViewData["Message"] = "Hello World;
              */
             // ViewBag.CategoryList = CategoryList;
-            ViewData["CategoryList"] = CategoryList;
+            // ViewData["CategoryList"] = CategoryList;
 
-            return View();
+            ProductVM productVM = new ProductVM();
+            productVM.CategoryList = CategoryList;
+            productVM.Product = new Product();
+
+            return View(productVM);
         }
 
         public IActionResult Edit(int? id)
