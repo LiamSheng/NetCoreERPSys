@@ -19,6 +19,7 @@ namespace NetCoreERPSys.DataAccess
 
         // 在 Nuget console 运行 add-migration AddCategoryTable -> update-database.
         public DbSet<Category> Categories { get; set; } // 代表数据库中的 Categories 表.
+        public DbSet<Product> Products { get; set; } // 代表数据库中的 Products 表.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,93 @@ namespace NetCoreERPSys.DataAccess
 
             // 假设您想让 Name 字段在数据库中不能重复
             // modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
+
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                {
+                    Id = 1,
+                    Title = "Fortune of Time",
+                    Description = "A thrilling adventure across centuries, where a mysterious artifact holds the key to changing history itself.",
+                    Author = "Billy Spark",
+                    ISBN = "SWD9999001",
+                    ListPrice = 99.00,
+                    Price = 90.00,
+                    Price50 = 85.00,
+                    Price100 = 80.00,
+                    CategoryId = 1,
+                    ImageUrl = ""
+                },
+                new Product
+                {
+                    Id = 2,
+                    Title = "Dark Skies",
+                    Description = "In the depths of space, a lone crew discovers a signal that could be humanity's greatest discovery or its final undoing.",
+                    Author = "Nancy Hoover",
+                    ISBN = "CAW777777701",
+                    ListPrice = 40.00,
+                    Price = 30.00,
+                    Price50 = 25.00,
+                    Price100 = 20.00,
+                    CategoryId = 2,
+                    ImageUrl = ""
+                },
+                new Product
+                {
+                    Id = 3,
+                    Title = "Vanish in the Sunset",
+                    Description = "A detective on the verge of retirement takes on one last case that blurs the line between justice and revenge.",
+                    Author = "Julian Button",
+                    ISBN = "RITO5555501",
+                    ListPrice = 55.00,
+                    Price = 50.00,
+                    Price50 = 40.00,
+                    Price100 = 35.00,
+                    CategoryId = 1,
+                    ImageUrl = ""
+                },
+                new Product
+                {
+                    Id = 4,
+                    Title = "Cotton Candy",
+                    Description = "A heartwarming story of friendship and finding magic in the small moments of life at a summer carnival.",
+                    Author = "Abby Muscles",
+                    ISBN = "WS3333333301",
+                    ListPrice = 70.00,
+                    Price = 65.00,
+                    Price50 = 60.00,
+                    Price100 = 55.00,
+                    CategoryId = 3,
+                    ImageUrl = ""
+                },
+                new Product
+                {
+                    Id = 5,
+                    Title = "Rock in the Ocean",
+                    Description = "An epic tale of survival and hope, as one person's resilience is tested against the vast, unforgiving sea.",
+                    Author = "Ron Parker",
+                    ISBN = "SOTJ1111111101",
+                    ListPrice = 30.00,
+                    Price = 27.00,
+                    Price50 = 25.00,
+                    Price100 = 20.00,
+                    CategoryId = 2,
+                    ImageUrl = ""
+                },
+                new Product
+                {
+                    Id = 6,
+                    Title = "Leaves and Wonders",
+                    Description = "Explore the hidden world of botany and the surprising secrets of the plants that surround us every day.",
+                    Author = "Laura Phantom",
+                    ISBN = "FOT000000001",
+                    ListPrice = 25.00,
+                    Price = 23.00,
+                    Price50 = 22.00,
+                    Price100 = 20.00,
+                    CategoryId = 3,
+                    ImageUrl = ""
+                }
+            );
         }
     }
 }
