@@ -1,10 +1,11 @@
 ﻿@model NetCoreERPSys.Models.ViewModels.ProductVM
 
 @* enctype="multipart/form-data" 上传功能才能成功 *@
+@* 收集上传图片的地址应该是 wwwroot *@
 <form method="post" class="row" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Create Product</h2>
+            <h2 class="text-primary">@(Model.Product.Id == 0 ? "Update" : "Create") Product</h2>
             <hr />
         </div>
         @*
@@ -13,6 +14,8 @@
             None: 不显示任何错误.
         *@
         <div asp-validation-summary="ModelOnly" class="text-bg-warning">asp-validation-summary</div>
+        <input asp-for="Product.ImageUrl" hidden />
+        <input asp-for="Product.Id" hidden />
         <div class="mb-3">
             <label asp-for="Product.Title"></label>
             <input asp-for="Product.Title" class="form-control" />
@@ -60,8 +63,14 @@
         </div>
         <div class="mb-3">
             <label asp-for="Product.ImageUrl"></label>
-            <input type="file" asp-for="Product.ImageUrl" rows="3" class="form-control" />
+            @* 出于安全原因，服务器端代码以及 JavaScript 绝对不能以编程方式为一个 <input type="file"> 设置初始值 *@
+            @* 框架准备生成最终的 HTML 时, 不会填写 value 的值 *@
+            @* 文件上传框: 专门用来接收用户上传的新文件, name 应该与 Controller Action 方法中的 IFormFile 参数名匹配 *@
+            <input type="file" name="file" rows="3" class="form-control" />
             <span asp-validation-for="Product.ImageUrl" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <img src="@Model.Product.ImageUrl" width="25%"/>
         </div>
         <div class="py-2 clo-12">
             <label asp-for="@Model.Product.CategoryId" class="ms-2"></label>
@@ -73,7 +82,7 @@
             <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
         </div>
         <div class="row p-1">
-            <div class="col-6"><button type="submit" class="btn btn-primary form-control">Create</button></div>
+            <div class="col-6"><button type="submit" class="btn btn-primary form-control">@(Model.Product.Id != 0 ? "Update" : "Create") Product</button></div>
             <div class="col-6">
                 <a asp-controller="Product" asp-action="Index" class="btn btn-outline-dark form-control">Back to List</a>
             </div>

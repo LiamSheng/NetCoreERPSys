@@ -11,9 +11,12 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _hostEnvironment; // 框架自带, 不需要依赖注入
+
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _hostEnvironment = hostEnvironment;
         }
 
         public IActionResult Index()
@@ -23,14 +26,56 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(ProductVM productVM)
+        public IActionResult Upsert(ProductVM productVM, IFormFile file)
         {
             // 用户点击提交表单后, 浏览器只会提交用户输入或选择的值, 例如 Product.Name
             // 它不会将整个下拉列表的选项（也就是 CategoryList）提交回来.
             // obj.CategoryList 属性将会是 null, 将会导致 ModelState.IsValid 返回 false.
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(productVM.Product);
+                string wwwRootPath = _hostEnvironment.WebRootPath; // wwwroot 文件夹的绝对路径.
+
+                if (file == null)
+                {
+
+                }
+                else
+                {
+                    string fileName = Guid.NewGuid().ToString(); // 使用 GUID 作为随机的文件名, 避免文件名冲突.
+                    string extension = Path.GetExtension(file.FileName); // 获取上传文件的扩展名, 包括点号, 例如 ".jpg"
+                    string fullFileName = fileName + extension; // 生成完整的文件名, 例如 "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6.jpg"
+                    string productsPath = Path.Combine(wwwRootPath, @"images\products"); // 图片将上传到 wwwroot/images/products 文件夹下.
+
+                    // 这个正在被编辑的产品，之前是否已经有一张图片了？
+                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath); // 删除服务器磁盘上的图像.
+                        }
+                    }
+
+                    // 任何实现了 IDisposable 接口的对象, 都应该（也只能）在 using 语句中使用.
+                    using (var fileStream = new FileStream(Path.Combine(productsPath, fullFileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream); // 将上传的文件内容复制到服务器上的文件流中, 实现文件保存.
+                    }
+                    productVM.Product.ImageUrl = @"\images\products\" + fullFileName; // 赋值给 Product 对象的 ImageUrl 属性, 以便存储到数据库.
+                }
+
+                if (productVM.Product.Id == 0)
+                {
+                    // Add.
+                    _unitOfWork.Product.Add(productVM.Product);
+                }
+                else
+                {
+                    // Update
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
+
                 _unitOfWork.Save();
                 TempData["created"] = "Product created successfully!";
                 return RedirectToAction("Index");
@@ -51,7 +96,7 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
             }
         }
 
-        public IActionResult Create()
+        public IActionResult Upsert(int? id)
         {
             /**
              * SelectListItem 是 ASP.NET Core MVC 和 Razor Pages 内置的一个辅助类，
@@ -83,36 +128,18 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
             productVM.CategoryList = CategoryList;
             productVM.Product = new Product();
 
-            return View(productVM);
-        }
-
-        public IActionResult Edit(int? id)
-        {
-            if (id == null || id == 0)
+            if (id is null || id == 0)
             {
-                return NotFound();
+                // create
+                return View(productVM);
             }
-            Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
-
-            if (productFromDb == null)
+            else
             {
-                return NotFound();
-            }
+                // update
+                productVM.Product = _unitOfWork.Product.Get(u => u.Id == id);
 
-            return View(productFromDb);
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Product obj)
-        {
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Product.Update(obj);
-                _unitOfWork.Save();
-                TempData["updated"] = "Product updated successfully!";
-                return RedirectToAction("Index");
+                return View(productVM);
             }
-            return View();
         }
 
         public IActionResult Delete(int? id)
