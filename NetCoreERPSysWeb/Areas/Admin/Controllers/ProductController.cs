@@ -26,74 +26,90 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upsert(ProductVM productVM, IFormFile file)
+        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
         {
-            // 用户点击提交表单后, 浏览器只会提交用户输入或选择的值, 例如 Product.Name
-            // 它不会将整个下拉列表的选项（也就是 CategoryList）提交回来.
-            // obj.CategoryList 属性将会是 null, 将会导致 ModelState.IsValid 返回 false.
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                string wwwRootPath = _hostEnvironment.WebRootPath; // wwwroot 文件夹的绝对路径.
-
-                if (file == null)
+                // 如果模型验证失败，重新填充下拉列表并返回视图
+                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                });
+                return View(productVM);
+            }
 
-                }
-                else
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+
+            // --- 数据库保存逻辑 ---
+            if (productVM.Product.Id == 0) // 这是 Create (创建)
+            {
+                // 只有在创建新产品时才处理图片上传
+                if (file != null)
                 {
-                    string fileName = Guid.NewGuid().ToString(); // 使用 GUID 作为随机的文件名, 避免文件名冲突.
-                    string extension = Path.GetExtension(file.FileName); // 获取上传文件的扩展名, 包括点号, 例如 ".jpg"
-                    string fullFileName = fileName + extension; // 生成完整的文件名, 例如 "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6.jpg"
-                    string productsPath = Path.Combine(wwwRootPath, @"images\products"); // 图片将上传到 wwwroot/images/products 文件夹下.
-
-                    // 这个正在被编辑的产品，之前是否已经有一张图片了？
-                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productsPath = Path.Combine(wwwRootPath, @"images\products");
+                    using (var fileStream = new FileStream(Path.Combine(productsPath, fileName), FileMode.Create))
                     {
-                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+                        file.CopyTo(fileStream);
+                    }
+                    productVM.Product.ImageUrl = @"\images\products\" + fileName;
+                }
 
+                _unitOfWork.Product.Add(productVM.Product);
+                TempData["success"] = "Product created successfully!";
+            }
+            else // 这是 Update (更新)
+            {
+                // 1. 先从数据库加载原始对象 (EF Core 会开始跟踪它)
+                var productFromDb = _unitOfWork.Product.Get(u => u.Id == productVM.Product.Id);
+                if (productFromDb == null)
+                {
+                    return NotFound(); // 如果找不到，返回 404
+                }
+
+                // 2. 检查是否有新文件上传
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productsPath = Path.Combine(wwwRootPath, @"images\products");
+
+                    // 删除旧图片
+                    if (!string.IsNullOrEmpty(productFromDb.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, productFromDb.ImageUrl.TrimStart('\\'));
                         if (System.IO.File.Exists(oldImagePath))
                         {
-                            System.IO.File.Delete(oldImagePath); // 删除服务器磁盘上的图像.
+                            System.IO.File.Delete(oldImagePath);
                         }
                     }
 
-                    // 任何实现了 IDisposable 接口的对象, 都应该（也只能）在 using 语句中使用.
-                    using (var fileStream = new FileStream(Path.Combine(productsPath, fullFileName), FileMode.Create))
+                    // 保存新图片
+                    using (var fileStream = new FileStream(Path.Combine(productsPath, fileName), FileMode.Create))
                     {
-                        file.CopyTo(fileStream); // 将上传的文件内容复制到服务器上的文件流中, 实现文件保存.
+                        file.CopyTo(fileStream);
                     }
-                    productVM.Product.ImageUrl = @"\images\products\" + fullFileName; // 赋值给 Product 对象的 ImageUrl 属性, 以便存储到数据库.
+                    productFromDb.ImageUrl = @"\images\products\" + fileName; // 更新已跟踪对象的 ImageUrl
                 }
 
-                if (productVM.Product.Id == 0)
-                {
-                    // Add.
-                    _unitOfWork.Product.Add(productVM.Product);
-                }
-                else
-                {
-                    // Update
-                    _unitOfWork.Product.Update(productVM.Product);
-                }
+                // 3. 将 ViewModel 中的其他属性值更新到已跟踪的数据库对象上
+                productFromDb.Title = productVM.Product.Title;
+                productFromDb.Description = productVM.Product.Description;
+                productFromDb.ISBN = productVM.Product.ISBN;
+                productFromDb.Author = productVM.Product.Author;
+                productFromDb.ListPrice = productVM.Product.ListPrice;
+                productFromDb.Price = productVM.Product.Price;
+                productFromDb.Price50 = productVM.Product.Price50;
+                productFromDb.Price100 = productVM.Product.Price100;
+                productFromDb.CategoryId = productVM.Product.CategoryId;
 
-                _unitOfWork.Save();
-                TempData["created"] = "Product created successfully!";
-                return RedirectToAction("Index");
+                // 4. 更新这个已跟踪的、并且属性已更新的对象
+                _unitOfWork.Product.Update(productFromDb);
+                TempData["success"] = "Product updated successfully!";
             }
-            else
-            {
-                IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category
-                    .GetAll()
-                    .Select(u => new SelectListItem
-                    {
-                        Text = u.Name,
-                        Value = u.Id.ToString()
-                    });
 
-                productVM.CategoryList = CategoryList;
-
-                return View(productVM);
-            }
+            _unitOfWork.Save();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Upsert(int? id)
@@ -142,49 +158,37 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
             }
         }
 
-        public IActionResult Delete(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-
-            Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
-
-            if (productFromDb == null)
-            {
-                return NotFound();
-            }
-
-            return View(productFromDb);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePOST(int? id)
-        {
-            Product? ProductFromDb = _unitOfWork.Product.Get(u => u.Id == id);
-
-            if (ProductFromDb == null)
-            {
-                return NotFound();
-            }
-
-            _unitOfWork.Product.Remove(ProductFromDb);
-            TempData["deleted"] = "Product deleted successfully!";
-            _unitOfWork.Save();
-
-            return RedirectToAction("Index");
-        }
-
-        //http://localhost:5188/Admin/Product/getallapi
         #region API CALLS
+        //http://localhost:5188/Admin/Product/getallapi
         [HttpGet]
         public IActionResult GetAllAPI()
         {
             List<Product> objList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return Json(new { data = objList });
         }
-        #endregion
 
+
+        // [HttpDelete] 方法会返回一个 IActionResult 或 ActionResult<T> 类型
+        [HttpDelete]
+        public IActionResult Delete(int? id)
+        {
+            var productToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
+            if (productToBeDeleted == null)
+            {
+                return Json(new { success = false, message = "Error while deleting" });
+            }
+            var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, productToBeDeleted.ImageUrl.TrimStart('\\'));
+
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
+            _unitOfWork.Product.Remove(productToBeDeleted);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Deleted Successful!" });
+        }
+        #endregion
     }
 }
