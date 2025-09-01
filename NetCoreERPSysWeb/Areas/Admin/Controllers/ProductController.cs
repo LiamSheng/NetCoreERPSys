@@ -21,7 +21,7 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            List<Product> objList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return View(objList);
         }
 
@@ -175,5 +175,16 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
+        //http://localhost:5188/Admin/Product/getallapi
+        #region API CALLS
+        [HttpGet]
+        public IActionResult GetAllAPI()
+        {
+            List<Product> objList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            return Json(new { data = objList });
+        }
+        #endregion
+
     }
 }

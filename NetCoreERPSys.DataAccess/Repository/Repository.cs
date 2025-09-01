@@ -14,6 +14,9 @@ namespace NetCoreERPSys.DataAccess.Repository
         {
             _db = db;
             this.dbSet = _db.Set<T>(); // _db.Categories == dbSet
+
+            // 如果 T 是 Product, 就把 Category 一起 Include 进来.
+            _db.Products.Include(u => u.Category);
         }
 
         public void Add(T entity)
@@ -31,9 +34,21 @@ namespace NetCoreERPSys.DataAccess.Repository
             return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                // 如果指令字符串是 "Category,CoverType"，
+                // .Split() 会将它分割成一个数组: ["Category", "CoverType"]
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    // 循环遍历数组，为每个属性名调用 EF Core 的 .Include() 方法
+                    query = query.Include(includeProp);
+                }
+            }
+
             return query.ToList();
         }
 
