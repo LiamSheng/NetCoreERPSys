@@ -1,4 +1,5 @@
 ﻿<form method="post">
+    <input hidden />
     <div class="card  container pt-4">
         <div class="card-header bg-primary text-light ml-0  row ">
             <div class="col-12 col-md-6">
@@ -6,6 +7,7 @@
                 <p class="text-warning">by @Model.Author</p>
             </div>
             <div class="col-12 col-md-6 text-end pt-4">
+                @* <span class="badge bg-info pt-2" style="height:30px;">@Model.CoverType.Name</span> *@
                 <span class="badge bg-warning pt-2" style="height:30px;">@Model.Category.Name</span>
             </div>
         </div>
@@ -47,6 +49,14 @@
                             <div class="p-1 col-2 bg-secondary">
                                 <div>@Model.Price100.ToString("c")</div>
                             </div>
+                        </div>
+                        <br />
+                        <div class="row pl-2">
+                            <p class="text-secondary">@Html.Raw(Model.Description)</p>
+                        </div>
+                        <div class="row pl-2">
+                            <div class="col-2 text-primary"><h4>Count</h4></div>
+                            <div class="col-10"><input class="form-control" /></div>
                         </div>
                     </div>
                     <div class="col-12 col-lg-3 offset-lg-1 text-center">
