@@ -26,6 +26,15 @@ namespace NetCoreERPSys.DataAccess
         public DbSet<Category> Categories { get; set; } // 代表数据库中的 Categories 表.
         public DbSet<Product> Products { get; set; } // 代表数据库中的 Products 表.
 
+        /*
+         * EF Core 不会为 ApplicationUser 创建一张新表，也不会去寻找 IdentityUser 表.
+         * 相反，它会找到 Identity 框架预先配置好的、用于存储所有用户信息的那张唯一的表，
+         * 然后把您在 ApplicationUser 中新增的字段作为新列（Columns）添加进去.
+         * 
+         * AspNetUsers 是 Identity 框架的默认用户表名, 其中的 Discriminator 列用于区分不同的用户类型.
+         */
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /**
