@@ -1,12 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+using Microsoft.EntityFrameworkCore;
 using NetCoreERPSys.Models;
 
 namespace NetCoreERPSys.DataAccess
 {
     /*
      * DbContext 这个(抽象)基类需要 options 对象来了解它应该用什么连接字符串、什么数据库类型和数据库交互.
+     * 
+     * ApplicationDbContext 需要支持用户认证和授权（ASP.NET Core Identity）时，它会继承自 IdentityDbContext，而不是 DbContext
      */
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         /*
          * 构造函数定义:
@@ -23,6 +28,17 @@ namespace NetCoreERPSys.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            /**
+             * IdentityDbContext 自身的 OnModelCreating 方法已经包含了很多预定义的配置，
+             * 用于创建所有 Identity 必需的表，例如：
+             * - AspNetUsers (用户信息)
+             * - AspNetRoles (角色信息)
+             * - AspNetUserRoles (用户和角色的关联)
+             * - AspNetUserClaims (用户的声明)
+             * - AspNetUserLogins (外部登录信息)
+             */
+            base.OnModelCreating(modelBuilder);
+
             // 告诉 EF Core，在创建 Category 表之后，
             // 请立即向表中插入这三条数据。
             modelBuilder.Entity<Category>().HasData(

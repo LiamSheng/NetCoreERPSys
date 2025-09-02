@@ -1,8 +1,9 @@
-﻿// 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
+// 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
 using Microsoft.EntityFrameworkCore;
 using NetCoreERPSys.DataAccess;
 using NetCoreERPSys.DataAccess.Repository;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
