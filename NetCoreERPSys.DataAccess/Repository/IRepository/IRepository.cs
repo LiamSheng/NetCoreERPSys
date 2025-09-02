@@ -10,7 +10,7 @@ namespace NetCoreERPSys.DataAccess.Repository.IRepository
 
         // 描述了如何从一堆 T 类型的对象中筛选.
         // var category = _repository.Get(c => c.Id == 5);
-        T Get(Expression<Func<T, bool>> filter);
+        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null);
 
         void Add(T entity);
 

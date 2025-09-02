@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NetCoreERPSys.DataAccess.Repository.IRepository;
+using NetCoreERPSys.Models;
 using NetCoreERPSysWeb.Models;
 using System.Diagnostics;
 
@@ -9,15 +11,30 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    private readonly IUnitOfWork _unitOfWork;
+
+    public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
+        _unitOfWork = unitOfWork;
     }
 
     public IActionResult Index()
     {
-        //return View();
-        return View("Index");
+        IEnumerable<Product> productsList = _unitOfWork.Product.GetAll(includeProperties: "Category");
+        return View(productsList);
+    }
+
+    public IActionResult Details(int id)
+    {
+        Product product = _unitOfWork.Product.Get(u => u.Id == id, includeProperties: "Category");
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
     }
 
     /*
