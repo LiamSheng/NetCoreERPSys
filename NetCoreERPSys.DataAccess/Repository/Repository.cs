@@ -24,11 +24,19 @@ namespace NetCoreERPSys.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter)
+        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             // IQueryable<T> query -> 准备从 Categories 表里取数据.
             IQueryable<T> query = dbSet;
             query = query.Where(filter);
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
 
             // dbSet.Where(filter).FirstOrDefault() 完全正确.
             return query.FirstOrDefault();
