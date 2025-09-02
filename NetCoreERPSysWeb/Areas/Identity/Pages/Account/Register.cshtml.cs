@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using NetCoreERPSys.Models;
+using NetCoreERPSys.Utility;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -17,6 +20,8 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
@@ -25,12 +30,14 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
+            RoleManager<IdentityRole> roleManager,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -43,6 +50,7 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// 当用户提交表单（HTTP POST 请求）时，请自动将表单中的数据绑定到这个 Input 属性上. 例如 Input.Email 属性
         [BindProperty]
         public InputModel Input { get; set; }
 
@@ -91,12 +99,46 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            public string? Role { get; set; }
+
+            [ValidateNever]
+            public IEnumerable<SelectListItem> RoleList { get; set; }
         }
 
-
+        /*
+         * ASP.NET Core Identity 注册页面 (Register.cshtml) 的标准后台代码.
+         * 它的作用就是在用户通过 GET 请求访问注册页面时，进行准备工作.
+         */
         public async Task OnGetAsync(string returnUrl = null)
         {
+            // 在系统部署后，第一次有任何人（即第一个访问者）试图访问注册页面时，这段代码会被触发.
+            if (!await _roleManager.RoleExistsAsync(SD.Role_User_Cust))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_User_Cust));
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
+                await _roleManager.CreateAsync(new IdentityRole(SD.Role_User_Comp));
+            }
+
+            Input = new InputModel();
+
+            // 1. 从数据库中获取所有角色的名称，并将它们存储在一个临时的字符串集合中.
+            var roleNames = _roleManager.Roles.Select(r => r.Name);
+
+            // 2. 将刚才获取到的角色名称字符串集合，转换为一个 SelectListItem 对象的集合.
+            var roleSelectList = roleNames.Select(r => new SelectListItem
+            {
+                Text = r,
+                Value = r
+            }).ToList(); // 使用 ToList() 立即执行查询并生成列表
+
+            // 最后，将最终生成的 SelectListItem 列表，赋值给在第 1 步创建的 Input 实例的 RoleList 属性.
+            Input.RoleList = roleSelectList;
+
             ReturnUrl = returnUrl;
+
+            // 获取第三方登录的服务商信息.
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
@@ -116,8 +158,17 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    if (!String.IsNullOrEmpty(Input.Role))
+                    {
+                        await _userManager.AddToRoleAsync(user, Input.Role);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.Role_User_Cust);
+                    }
+
                     var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user); // 注册服务需要带上 AddDefaultTokenProviders();
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",

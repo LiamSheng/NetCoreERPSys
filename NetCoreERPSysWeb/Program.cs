@@ -1,9 +1,11 @@
 // 需要像容器添加服务/中间件的时候, 需要在 Program.cs 里添加
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using NetCoreERPSys.DataAccess;
 using NetCoreERPSys.DataAccess.Repository;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
+using NetCoreERPSys.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +20,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
  * 2. 设定了一个安全规则，即用户必须通过某种方式（如邮件）确认其账户，然后才能登录.
  * 3. Identity 系统使用 Entity Framework Core，并通过 ApplicationDbContext 这个类将所有用户和角色的数据保存到数据库中.
  */
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
+// 从一个仅包含用户账户管理的基础身份验证系统，升级到了一个同时支持用户和角色（Roles）管理的更完整的身份验证和授权系统.
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 // Identity 的 Razor 页面需要注册服务才能使用.
 builder.Services.AddRazorPages();
 
 // builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
