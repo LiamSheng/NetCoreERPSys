@@ -60,18 +60,18 @@
             </div>
             @* @if (User.IsInRole(SD.Role_Admin)) *@
             @* { *@
-                <div class="form-floating py-2 col-6">
-                    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class=form-select>
-                        <option disabled selected>-Select Role-</option>
-                    </select>
+            <div class="form-floating py-2 col-6">
+                <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class=form-select>
+                    <option disabled selected>-Select Role-</option>
+                </select>
 
-                </div>
-                @* <div class="form-floating py-2 col-6">
-                    <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class=form-select>
-                        <option disabled selected>-Select Company-</option>
-                    </select>
+            </div>
+            <div class="form-floating py-2 col-6">
+                <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class=form-select>
+                    <option disabled selected>-Select Company-</option>
+                </select>
 
-                </div> *@
+            </div>
             @* } *@
             <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">Register</button>
         </form>
@@ -114,5 +114,33 @@
 </div> *@
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+
+                const roleSelect = document.querySelector('#Input_Role');
+                const companyIdInput = document.querySelector('#Input_CompanyId'); // 注意: ID 是 Input_Id
+
+                /**
+                 * 根据角色下拉菜单的当前选择，更新公司输入框的可见性。
+                 */
+                function updateCompanyFieldVisibility() {
+                    // 使用 value 属性进行判断通常比 text 更可靠
+                    const selectedValue = roleSelect.value;
+                    // 假设 "Company" 选项的 value="Company"
+                    if (selectedValue === 'Company') {
+                        companyIdInput.style.display = 'block';
+                    } else {
+                        companyIdInput.style.display = 'none';
+                    }
+                }
+
+                // 1. 页面加载完成后立即执行，以设置正确的初始状态
+                updateCompanyFieldVisibility();
+
+                // 2. 为下拉菜单添加 change 事件监听，处理后续的用户选择
+                roleSelect.addEventListener('change', updateCompanyFieldVisibility);
+
+            });
+        </script>
 }

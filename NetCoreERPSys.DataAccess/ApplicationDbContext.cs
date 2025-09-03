@@ -26,6 +26,8 @@ namespace NetCoreERPSys.DataAccess
         public DbSet<Category> Categories { get; set; } // 代表数据库中的 Categories 表.
         public DbSet<Product> Products { get; set; } // 代表数据库中的 Products 表.
 
+        public DbSet<Company> Companies { get; set; }
+
         /*
          * EF Core 不会为 ApplicationUser 创建一张新表，也不会去寻找 IdentityUser 表.
          * 相反，它会找到 Identity 框架预先配置好的、用于存储所有用户信息的那张唯一的表，
@@ -54,6 +56,39 @@ namespace NetCoreERPSys.DataAccess
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
                 new Category { Id = 3, Name = "History", DisplayOrder = 3 }
+            );
+
+            modelBuilder.Entity<Company>().HasData(
+                new Company
+                {
+                    CompanyId = 1,
+                    Name = "TechCorp Solutions",
+                    StreetAddress = "123 Innovation Drive",
+                    City = "Silicon Valley",
+                    State = "CA",
+                    PostalCode = "94043",
+                    PhoneNumber = "650-555-0101"
+                },
+                new Company
+                {
+                    CompanyId = 2,
+                    Name = "Innovate Dynamics",
+                    StreetAddress = "456 Future Way",
+                    City = "Seattle",
+                    State = "WA",
+                    PostalCode = "98101",
+                    PhoneNumber = "206-555-0102"
+                },
+                new Company
+                {
+                    CompanyId = 3,
+                    Name = "Global Logistics Inc.",
+                    StreetAddress = "789 Commerce Blvd",
+                    City = "New York",
+                    State = "NY",
+                    PostalCode = "10001",
+                    PhoneNumber = "212-555-0103"
+                }
             );
 
             // 假设您不想让表名叫 Categories，而是叫 MyCategories
