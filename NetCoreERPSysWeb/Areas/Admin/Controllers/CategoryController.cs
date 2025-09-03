@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
+using NetCoreERPSys.Utility;
 
 namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class CategoryController : Controller
     {
         // 需要注册依赖注入
@@ -36,6 +39,7 @@ namespace NetCoreERPSysWeb.Areas.Admin.Controllers
          * 5. 最终, 这个 obj 对象就被填充好了, 然后传递给 Create 方法.
          */
         [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
         public IActionResult Create(Category obj)
         {
             if (obj.Name == obj.DisplayOrder.ToString())
