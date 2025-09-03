@@ -104,6 +104,18 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
 
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
+
+            public string? PhoneNumber { get; set; }
+
+            public string? StreetAddress { get; set; }
+
+            public string? City { get; set; }
+
+            public string? State { get; set; }
+
+            public string? PostalCode { get; set; }
+
+            public string? Name { get; set; }
         }
 
         /*
@@ -150,8 +162,19 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
+                // _userStore 和 _emailStore 是更底层的服务，它们的 Set... 方法包含了额外的、必要的处理逻辑.
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                // 对于不属于 Identity 框架核心功能的, 使用普通绑定（直接赋值）即可.
+                user.Name = Input.Name;
+                user.StreetAddress = Input.StreetAddress;
+                user.City = Input.City;
+                user.State = Input.State;
+                user.PostalCode = Input.PostalCode;
+                user.PhoneNumber = Input.PhoneNumber;
+
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

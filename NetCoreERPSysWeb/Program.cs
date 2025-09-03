@@ -27,6 +27,14 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// 这里不是 Cookie 本身的特性,而是配置框架认证中间件如何处理认证行为的服务器端的指令.
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = $"/Identity/Account/Login";
+    options.LogoutPath = $"/Identity/Account/Logout";
+    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+});
+
 // Identity 的 Razor 页面需要注册服务才能使用.
 builder.Services.AddRazorPages();
 

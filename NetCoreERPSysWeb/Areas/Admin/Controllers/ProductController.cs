@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
 using NetCoreERPSys.Models.ViewModels;
+using NetCoreERPSys.Utility;
 
 namespace NetCoreERPSysWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    // /Account/Login?ReturnUrl=%2FAdmin%2FCategory%2FIndex.
+    // /identity/Account/Login?ReturnUrl=%2FAdmin%2FCategory%2FIndex 返回登录页面. -> 以 customer 登录 -> Access Denied.
+    [Authorize(Roles = SD.Role_Admin)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
