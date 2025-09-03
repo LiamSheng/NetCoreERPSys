@@ -6,6 +6,8 @@
 
         IProductRepository Product { get; }
 
+        ICompanyRepository Company { get; }
+
         void Save();
     }
 }

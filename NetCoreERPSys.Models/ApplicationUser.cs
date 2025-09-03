@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NetCoreERPSys.Models
 {
@@ -15,5 +16,11 @@ namespace NetCoreERPSys.Models
         public string? State { get; set; }
 
         public string? PostalCode { get; set; }
+
+        public int? CompanyId { get; set; }
+
+        [ForeignKey("CompanyId")] // 指的是这个类的 public int? CompanyId { get; set; }
+        public Company Company { get; set; } // Company 中 名为 "Id" 或 "CompanyId" 的属性时，
+                                             // 会自动把它识别为主键, 与之对应.
     }
 }

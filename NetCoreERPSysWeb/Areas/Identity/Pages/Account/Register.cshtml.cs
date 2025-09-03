@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
 using NetCoreERPSys.Utility;
 using System.ComponentModel.DataAnnotations;
@@ -29,13 +30,16 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
+        private readonly IUnitOfWork _unitOfWork;
+
         public RegisterModel(
             RoleManager<IdentityRole> roleManager,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IUnitOfWork unitOfWork)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -44,6 +48,7 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -102,8 +107,13 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
 
             public string? Role { get; set; }
 
+            public int? CompanyId { get; set; }
+
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
+
+            [ValidateNever]
+            public IEnumerable<SelectListItem> CompanyList { get; set; }
 
             public string? PhoneNumber { get; set; }
 
@@ -141,12 +151,20 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
             // 2. 将刚才获取到的角色名称字符串集合，转换为一个 SelectListItem 对象的集合.
             var roleSelectList = roleNames.Select(r => new SelectListItem
             {
-                Text = r,
-                Value = r
+                Text = r, // 下拉框看到的文本.
+                Value = r // 下拉框提交的数据.
             }).ToList(); // 使用 ToList() 立即执行查询并生成列表
 
             // 最后，将最终生成的 SelectListItem 列表，赋值给在第 1 步创建的 Input 实例的 RoleList 属性.
             Input.RoleList = roleSelectList;
+
+            var companies = _unitOfWork.Company.GetAll();
+
+            Input.CompanyList = companies.Select(c => new SelectListItem
+            {
+                Text = c.Name,
+                Value = c.CompanyId.ToString() // 提交的是 Id.
+            }).ToList();
 
             ReturnUrl = returnUrl;
 
@@ -174,6 +192,10 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
 
+                if (Input.Role == SD.Role_User_Comp)
+                {
+                    user.CompanyId = Input.CompanyId;
+                }
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -219,6 +241,8 @@ namespace NetCoreERPSysWeb.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
+            // 重新渲染 Register.cshtml 页面 的时候, 会寻找 RoleList 和 CompanyList 属性来填充选项.
+            // 但是 这两个属性在当前的 OnPostAsync 请求中是 null, 当 asp-items 尝试在一个 null 的列表上进行循环时，程序会抛出一个服务器端异常.
             return Page();
         }
 
