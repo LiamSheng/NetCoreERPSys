@@ -1,14 +1,20 @@
-﻿<form method="post">
-    <input hidden />
+﻿@* 任何时候从 Controller 传递数据到这个页面时，那个数据对象的类型必须是 ShoppingCart，
+或者是可以转换成 ShoppingCart 的类型。如果不是，就在编译时报错. *@
+@model ShoppingCart
+
+
+@* 使用 @Model 时，它代表的是从 Controller 的 Action 方法中 return View(someObject) 时传递过来的那个具体的、包含了真实数据的对象实例 *@
+<form method="post">
+    <input hidden asp-for="ProductId" />
     <div class="card  container pt-4">
         <div class="card-header bg-primary text-light ml-0  row ">
             <div class="col-12 col-md-6">
-                <h1 class="text-white-50">@Model.Title</h1>
-                <p class="text-warning">by @Model.Author</p>
+                <h1 class="text-white-50">@Model.Product.Title</h1>
+                <p class="text-warning">by @Model.Product.Author</p>
             </div>
             <div class="col-12 col-md-6 text-end pt-4">
-                @* <span class="badge bg-info pt-2" style="height:30px;">@Model.CoverType.Name</span> *@
-                <span class="badge bg-warning pt-2" style="height:30px;">@Model.Category.Name</span>
+                @* <span class="badge bg-info pt-2" style="height:30px;">@Model.Product.CoverType.Name</span> *@
+                <span class="badge bg-warning pt-2" style="height:30px;">@Model.Product.Category.Name</span>
             </div>
         </div>
         <div class="card-body row container">
@@ -17,10 +23,10 @@
                     <div class="col-8 col-lg-8">
 
                         <div class="row pl-2">
-                            <h5 class="text-muted">ISBN : @Model.ISBN</h5>
+                            <h5 class="text-muted">ISBN : @Model.Product.ISBN</h5>
                         </div>
                         <div class="row pl-2">
-                            <h5 class="text-muted pb-2">List Price: <strike>@Model.ListPrice.ToString("c")</strike></h5>
+                            <h5 class="text-muted pb-2">List Price: <strike>@Model.Product.ListPrice.ToString("c")</strike></h5>
                         </div>
                         <div class="row text-center pl-2">
                             <div class="p-1 col-2 bg-secondary border-bottom">
@@ -41,26 +47,25 @@
                                 <div>Price</div>
                             </div>
                             <div class="p-1 col-2 bg-secondary">
-                                <div>@Model.Price.ToString("c")</div>
+                                <div>@Model.Product.Price.ToString("c")</div>
                             </div>
                             <div class="p-1 col-2 bg-secondary">
-                                <div>@Model.Price50.ToString("c")</div>
+                                <div>@Model.Product.Price50.ToString("c")</div>
                             </div>
                             <div class="p-1 col-2 bg-secondary">
-                                <div>@Model.Price100.ToString("c")</div>
+                                <div>@Model.Product.Price100.ToString("c")</div>
                             </div>
                         </div>
-                        <br />
                         <div class="row pl-2">
-                            <p class="text-secondary">@Html.Raw(Model.Description)</p>
+                            <p class="text-secondary">@Html.Raw(Model.Product.Description)</p>
                         </div>
                         <div class="row pl-2">
                             <div class="col-2 text-primary"><h4>Count</h4></div>
-                            <div class="col-10"><input class="form-control" /></div>
+                            <div class="col-10"><input asp-for="Count" class="form-control" /></div>
                         </div>
                     </div>
                     <div class="col-12 col-lg-3 offset-lg-1 text-center">
-                        <img src="@Model.ImageUrl" width="100%" class="rounded" />
+                        <img src="@Model.Product.ImageUrl" style="width:100%" class="rounded" />
                     </div>
                 </div>
             </div>

@@ -6,11 +6,11 @@ namespace NetCoreERPSys.DataAccess.Repository.IRepository
     {
         // 几乎所有的 LINQ to Objects 和 LINQ to Entities (EF Core) 的查询,
         // 返回的都是 IEnumerable<T> 或其变体 IQueryable<T>.
-        IEnumerable<T> GetAll(string? includeProperties = null);
+        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
 
         // 描述了如何从一堆 T 类型的对象中筛选.
         // var category = _repository.Get(c => c.Id == 5);
-        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false);
 
         void Add(T entity);
 

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
 using NetCoreERPSys.Models;
 using NetCoreERPSysWeb.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace NetCoreERPSysWeb.Areas.Customer.Controllers;
 
@@ -27,14 +29,56 @@ public class HomeController : Controller
 
     public IActionResult Details(int id)
     {
-        Product product = _unitOfWork.Product.Get(u => u.Id == id, includeProperties: "Category");
+        ShoppingCart shoppingCart = new()
+        {
+            Product = _unitOfWork.Product.Get(u => u.Id == id, includeProperties: "Category"),
+            Count = 1,
+            ProductId = id
+        };
 
-        if (product == null)
+        if (shoppingCart == null)
         {
             return NotFound();
         }
 
-        return View(product);
+        return View(shoppingCart);
+    }
+
+    [HttpPost]
+    [Authorize] //只有经过身份验证（即已登录）的用户才能访问此方法, 游客尝试访问的时候回传 HTTP 401, Cookies 中间件会将其重定向到登录页面.
+    public IActionResult Details(ShoppingCart shoppingCart)
+    {
+        //User 是基类控制器内置的一个属性，代表当前发出请求的用户.
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+
+        // 从当前登录用户的身份声明中，提取出他的唯一ID，并将其赋值给 userId 这个字符串变量.
+        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+        shoppingCart.ApplicationUserId = userId;
+
+        // !!! 这里不仅仅是一个一查询, 框架在内存中创建了这条数据的一个快照 (Snapshot)，并开始“监视”或“追踪”这个 cartFromDb 对象.
+        // 从此刻起，cartFromDb 就是一个被追踪的实体 (Tracked Entity).
+        ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ApplicationUserId == userId && u.ProductId == shoppingCart.ProductId);
+
+        if (cartFromDb != null)
+        {
+            // 任何对 cartFromDb 对象属性的更改，都会被 EF Core 监视到.
+            cartFromDb.Count += shoppingCart.Count;
+
+            // Update 方法主要用于未被追踪的实体, 不是通过当前 DbContext 查询出来的实体, 才需要调用 Update 方法.
+            // 框架追踪的更新和手动调用 Update 方法的更新, 效果是一样的, 不会重复添加记录.
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+        }
+        else
+        {
+            //add cart record
+            _unitOfWork.ShoppingCart.Add(shoppingCart);
+        }
+        TempData["success"] = "Cart updated successfully!";
+
+        _unitOfWork.Save();
+
+        return RedirectToAction(nameof(Index));
     }
 
     /*

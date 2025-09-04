@@ -25,8 +25,8 @@ namespace NetCoreERPSys.DataAccess
         // 在 Nuget console 运行 add-migration AddCategoryTable -> update-database.
         public DbSet<Category> Categories { get; set; } // 代表数据库中的 Categories 表.
         public DbSet<Product> Products { get; set; } // 代表数据库中的 Products 表.
-
         public DbSet<Company> Companies { get; set; }
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
         /*
          * EF Core 不会为 ApplicationUser 创建一张新表，也不会去寻找 IdentityUser 表.

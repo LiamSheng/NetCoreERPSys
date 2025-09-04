@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetCoreERPSys.DataAccess.Repository.IRepository;
+using System.Linq.Expressions;
 
 namespace NetCoreERPSys.DataAccess.Repository
 {
@@ -24,28 +25,50 @@ namespace NetCoreERPSys.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
-            // IQueryable<T> query -> 准备从 Categories 表里取数据.
-            IQueryable<T> query = dbSet;
-            query = query.Where(filter);
-
-            if (includeProperties != null)
+            if (tracked)
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
-            }
+                // IQueryable<T> query -> 准备从 Categories 表里取数据.
+                IQueryable<T> query = dbSet;
+                query = query.Where(filter);
 
-            // dbSet.Where(filter).FirstOrDefault() 完全正确.
-            return query.FirstOrDefault();
+                if (includeProperties != null)
+                {
+                    foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        query = query.Include(includeProp);
+                    }
+                }
+
+                // dbSet.Where(filter).FirstOrDefault() 完全正确.
+                return query.FirstOrDefault();
+            }
+            else
+            {
+                IQueryable<T> query = dbSet.AsNoTracking(); // AsNoTracking() 让 EF Core 不去追踪这个实体.
+                query = query.Where(filter);
+
+                if (includeProperties != null)
+                {
+                    foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        query = query.Include(includeProp);
+                    }
+                }
+
+                // dbSet.Where(filter).FirstOrDefault() 完全正确.
+                return query.FirstOrDefault();
+            }
         }
 
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
-
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 // 如果指令字符串是 "Category,CoverType"，
