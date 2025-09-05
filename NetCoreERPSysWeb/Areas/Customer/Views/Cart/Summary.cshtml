@@ -27,7 +27,7 @@
                                     <span class="text-info">Shipping Details:</span>
                                 </h4>
                             </div>
-                            @* <div class="row my-1">
+                            <div class="row my-1">
                                 <div class="col-3">
                                     <label>Name</label>
                                 </div>
@@ -79,7 +79,7 @@
                                 <div class="col-9">
                                     <input asp-for="OrderHeader.PostalCode" class="form-control" />
                                     <span asp-validation-for="OrderHeader.PostalCode" class="text-danger"></span>
-                                </div> *@
+                                </div>
                             </div>
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
@@ -97,10 +97,9 @@
                                         <span class="text-muted">@((details.Price * details.Count).ToString("c")) </span>
                                     </li>
                                 }
-
                                 <li class="list-group-item d-flex justify-content-between bg-light">
                                     <small class="text-info">Total (USD)</small>
-                                    @* <strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c")</strong> *@
+                                    <strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c")</strong>
                                 </li>
                             </ul>
                         </div>

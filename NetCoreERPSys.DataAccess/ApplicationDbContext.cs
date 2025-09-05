@@ -27,6 +27,8 @@ namespace NetCoreERPSys.DataAccess
         public DbSet<Product> Products { get; set; } // 代表数据库中的 Products 表.
         public DbSet<Company> Companies { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<OrderHeader> OrderHeaders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
 
         /*
          * EF Core 不会为 ApplicationUser 创建一张新表，也不会去寻找 IdentityUser 表.
@@ -51,7 +53,7 @@ namespace NetCoreERPSys.DataAccess
             base.OnModelCreating(modelBuilder);
 
             // 告诉 EF Core，在创建 Category 表之后，
-            // 请立即向表中插入这三条数据。
+            // 请立即向表中插入这三条数据.
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },

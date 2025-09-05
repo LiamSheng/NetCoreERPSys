@@ -23,7 +23,7 @@ namespace NetCoreERPSys.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // 告诉 EF Core，在创建 Category 表之后，
-            // 请立即向表中插入这三条数据。
+            // 请立即向表中插入这三条数据.
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
